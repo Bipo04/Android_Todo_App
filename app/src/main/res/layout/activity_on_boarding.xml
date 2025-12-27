@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    tools:context=".OnboardingActivity">
+
+    <!-- Background blur effects - small 70dp, inside the page -->
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/blur_green"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="end|top"
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="150dp"
+        android:src="@drawable/blur_yellow"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="280dp"
+        android:src="@drawable/blur_blue"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="150dp"
+        android:src="@drawable/blur_purple"
+        android:scaleType="fitXY" />
+
+    <!-- Main content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Illustration section -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <!-- Clock icon - top left -->
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="start|top"
+                android:layout_marginStart="70dp"
+                android:layout_marginTop="120dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/clock" />
+
+            <!-- Log/Chart icon - right -->
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="70dp"
+                android:layout_marginTop="270dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/log" />
+
+            <!-- Main illustration (person sitting) -->
+            <ImageView
+                android:id="@+id/img_illustration"
+                android:layout_width="220dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:src="@drawable/male"
+                android:scaleType="fitCenter" />
+
+        </FrameLayout>
+
+        <!-- Text section - centered -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingHorizontal="32dp"
+            android:paddingBottom="80dp">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task Management &amp;\nTo-Do List"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_title"
+                android:gravity="center"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingExtra="4dp" />
+
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="This productive tool is designed to help you better manage your task project-wise conveniently!"
+                android:textSize="14sp"
+                android:textColor="@color/text_description"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Let's Start Button -->
+            <Button
+                android:id="@+id/btn_lets_start"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/bg_button_primary"
+                android:text="Let's Start"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:drawablePadding="8dp"
+                android:paddingHorizontal="24dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
