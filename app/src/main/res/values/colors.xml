@@ -19,4 +19,9 @@
     <!-- FAB -->
     <color name="fab_background">#5F33E1</color>
     <color name="fab_shadow">#4A1FD1</color>
+    
+    <!-- Task Status Colors -->
+    <color name="status_in_progress">#FF9800</color>
+    <color name="status_completed">#4CAF50</color>
+    <color name="status_overdue">#F44336</color>
 </resources>

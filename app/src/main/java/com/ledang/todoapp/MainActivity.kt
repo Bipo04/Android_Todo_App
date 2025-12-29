@@ -13,11 +13,13 @@ import com.ledang.todoapp.fragments.UsersFragment
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var bottomNav: BottomNavigationView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNav = findViewById(R.id.bottomNavigationView)
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add)
 
         // Load HomeFragment mặc định
@@ -37,14 +39,31 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // FAB click - mở AddTask và bỏ chọn nav items
-        fabAdd.setOnClickListener {
-            // Bỏ chọn tất cả navigation items
-            bottomNav.menu.setGroupCheckable(0, true, false)
-            for (i in 0 until bottomNav.menu.size()) {
-                bottomNav.menu.getItem(i).isChecked = false
+        // Xử lý khi click lại item đang được chọn (reselect)
+        bottomNav.setOnItemReselectedListener { item ->
+            // Nếu đang ở AddTask thì navigate về fragment tương ứng
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.frame_layout)
+            if (currentFragment is AddTaskFragment) {
+                item.isChecked = true // Đảm bảo icon sáng
+                when (item.itemId) {
+                    R.id.homeFragment -> replaceFragment(HomeFragment())
+                    R.id.calendarFragment -> replaceFragment(CalendarFragment())
+                    R.id.documentFragment -> replaceFragment(DocumentFragment())
+                    R.id.usersFragment -> replaceFragment(UsersFragment())
+                }
             }
-            bottomNav.menu.setGroupCheckable(0, true, true)
+        }
+
+        // FAB click - mở AddTask
+        fabAdd.setOnClickListener {
+            // Kiểm tra nếu đang ở AddTaskFragment thì không làm gì
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.frame_layout)
+            if (currentFragment is AddTaskFragment) {
+                return@setOnClickListener
+            }
+
+            // Clear selection của bottom nav
+            bottomNav.menu.findItem(bottomNav.selectedItemId)?.isChecked = false
             
             replaceFragment(AddTaskFragment())
         }
@@ -54,5 +73,10 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.frame_layout, fragment)
             .commit()
+    }
+
+    // Hàm để chuyển sang CalendarFragment từ HomeFragment
+    fun navigateToCalendar() {
+        bottomNav.selectedItemId = R.id.calendarFragment
     }
 }

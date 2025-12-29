@@ -1,32 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/background_light"
-    android:padding="20dp"
-    android:gravity="center">
+    android:orientation="vertical"
+    tools:context=".fragments.CalendarFragment">
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/ic_calendar"
-        android:layout_marginBottom="16dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Calendar"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_title" />
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Today's Tasks"
+            android:textColor="@color/text_title"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/img_notification"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_notification"
+            app:tint="@color/text_title" />
+    </RelativeLayout>
+
+    <!-- Date Selector - RecyclerView Horizontal -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dates"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Coming soon..."
-        android:textSize="16sp"
-        android:textColor="@color/text_description" />
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:orientation="horizontal" />
+
+    <!-- Status Filter - Horizontal Scroll -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/layout_filters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Filter: All (Selected) -->
+            <TextView
+                android:id="@+id/filter_all"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/chip_selected"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:text="All"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <!-- Filter: To do -->
+            <TextView
+                android:id="@+id/filter_todo"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/chip_unselected"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:text="To do"
+                android:textColor="@color/primary_purple"
+                android:textSize="14sp" />
+
+            <!-- Filter: In Progress -->
+            <TextView
+                android:id="@+id/filter_in_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/chip_unselected"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:text="In Progress"
+                android:textColor="@color/primary_purple"
+                android:textSize="14sp" />
+
+            <!-- Filter: Completed -->
+            <TextView
+                android:id="@+id/filter_completed"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/chip_unselected"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:text="Completed"
+                android:textColor="@color/primary_purple"
+                android:textSize="14sp" />
+
+            <!-- Filter: Overdue -->
+            <TextView
+                android:id="@+id/filter_overdue"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/chip_unselected"
+                android:gravity="center"
+                android:paddingHorizontal="24dp"
+                android:text="Overdue"
+                android:textColor="@color/primary_purple"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Task List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_tasks"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="100dp"
+        tools:listitem="@layout/item_task_list" />
 
 </LinearLayout>
