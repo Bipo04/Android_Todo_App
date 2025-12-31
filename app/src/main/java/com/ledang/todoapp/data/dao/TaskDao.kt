@@ -31,4 +31,35 @@ interface TaskDao {
     
     @Query("SELECT * FROM tasks WHERE startTime >= :startOfDay AND startTime < :endOfDay ORDER BY startTime ASC")
     fun getTasksByDate(startOfDay: Long, endOfDay: Long): List<Task>
+    
+    @Query("UPDATE tasks SET status = :status WHERE id = :taskId")
+    fun updateStatus(taskId: Long, status: TaskStatus)
+    
+    // Get tasks that should be IN_PROGRESS (started but not ended, and still TODO)
+    @Query("SELECT * FROM tasks WHERE status = 'TODO' AND startTime <= :currentTime AND endTime > :currentTime")
+    fun getTasksToStartProgress(currentTime: Long): List<Task>
+    
+    // Get tasks that should be OVERDUE (ended but not completed)
+    @Query("SELECT * FROM tasks WHERE status IN ('TODO', 'IN_PROGRESS') AND endTime <= :currentTime")
+    fun getTasksToMarkOverdue(currentTime: Long): List<Task>
+    
+    // Count total tasks by category
+    @Query("SELECT COUNT(*) FROM tasks WHERE category = :category")
+    fun countTasksByCategory(category: TaskCategory): Int
+    
+    // Count completed tasks by category
+    @Query("SELECT COUNT(*) FROM tasks WHERE category = :category AND status = 'COMPLETED'")
+    fun countCompletedTasksByCategory(category: TaskCategory): Int
+    
+    // Count today's tasks
+    @Query("SELECT COUNT(*) FROM tasks WHERE startTime >= :startOfDay AND startTime < :endOfDay")
+    fun countTasksForToday(startOfDay: Long, endOfDay: Long): Int
+    
+    // Count today's completed tasks
+    @Query("SELECT COUNT(*) FROM tasks WHERE startTime >= :startOfDay AND startTime < :endOfDay AND status = 'COMPLETED'")
+    fun countCompletedTasksForToday(startOfDay: Long, endOfDay: Long): Int
+    
+    // Count in progress tasks
+    @Query("SELECT COUNT(*) FROM tasks WHERE status = 'IN_PROGRESS'")
+    fun countInProgressTasks(): Int
 }

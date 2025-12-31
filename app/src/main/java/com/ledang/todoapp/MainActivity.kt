@@ -9,6 +9,7 @@ import com.ledang.todoapp.fragments.AddTaskFragment
 import com.ledang.todoapp.fragments.CalendarFragment
 import com.ledang.todoapp.fragments.DocumentFragment
 import com.ledang.todoapp.fragments.HomeFragment
+import com.ledang.todoapp.fragments.TaskDetailFragment
 import com.ledang.todoapp.fragments.UsersFragment
 
 class MainActivity : AppCompatActivity() {
@@ -74,9 +75,34 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.frame_layout, fragment)
             .commit()
     }
+    
+    // Replace fragment with back stack support
+    private fun replaceFragmentWithBackStack(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.frame_layout, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+    
+    // Go back to previous fragment
+    fun goBack() {
+        supportFragmentManager.popBackStack()
+    }
 
     // Hàm để chuyển sang CalendarFragment từ HomeFragment
     fun navigateToCalendar() {
         bottomNav.selectedItemId = R.id.calendarFragment
+    }
+    
+    // Hàm để chuyển sang AddTaskFragment
+    fun navigateToAddTask() {
+        // Clear selection của bottom nav
+        bottomNav.menu.findItem(bottomNav.selectedItemId)?.isChecked = false
+        replaceFragment(AddTaskFragment())
+    }
+    
+    // Hàm để chuyển sang TaskDetailFragment (giữ nav selection, có back stack)
+    fun navigateToTaskDetail(taskId: Long) {
+        replaceFragmentWithBackStack(TaskDetailFragment.newInstance(taskId))
     }
 }

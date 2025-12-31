@@ -24,4 +24,14 @@
     <color name="status_in_progress">#FF9800</color>
     <color name="status_completed">#4CAF50</color>
     <color name="status_overdue">#F44336</color>
+    
+    <!-- Category Colors -->
+    <color name="category_work">#E91E8C</color>
+    <color name="category_work_light">#FCE4F0</color>
+    <color name="category_personal">#FF9800</color>
+    <color name="category_personal_light">#FFF3E0</color>
+    <color name="category_study">#2196F3</color>
+    <color name="category_study_light">#E3F2FD</color>
+    <color name="category_sports">#4CAF50</color>
+    <color name="category_sports_light">#E8F5E9</color>
 </resources>

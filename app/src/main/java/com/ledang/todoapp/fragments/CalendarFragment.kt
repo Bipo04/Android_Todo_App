@@ -1,13 +1,18 @@
 package com.ledang.todoapp.fragments
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.ledang.todoapp.MainActivity
 import com.ledang.todoapp.R
 import com.ledang.todoapp.adapter.DateAdapter
 import com.ledang.todoapp.adapter.DateItem
@@ -24,41 +29,34 @@ class CalendarFragment : Fragment() {
     private lateinit var rvTasks: RecyclerView
     private lateinit var dateAdapter: DateAdapter
     private lateinit var taskAdapter: TaskAdapter
-    
+
     private var allTasks: List<Task> = emptyList()
     private var currentFilter: TaskStatus? = null
     private var selectedDate: Date = Date()
+    private var isFirstLoad = true
+
+    // Auto update status
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateInterval = 60_000L
+
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            updateTaskStatuses()
+            handler.postDelayed(this, updateInterval)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_calendar, container, false)
-    }
+    ): View = inflater.inflate(R.layout.fragment_calendar, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup Date RecyclerView
-        rvDates = view.findViewById(R.id.rv_dates)
-        val dates = generateDates()
-        
-        dateAdapter = DateAdapter(dates) { dateItem, position ->
-            selectedDate = dateItem.date
-            dateAdapter.selectDate(position)
-            loadTasksForDate()
-        }
-        rvDates.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        rvDates.adapter = dateAdapter
-
-        // Setup Tasks RecyclerView
-        rvTasks = view.findViewById(R.id.rv_tasks)
-        taskAdapter = TaskAdapter()
-        rvTasks.layoutManager = LinearLayoutManager(context)
-        rvTasks.adapter = taskAdapter
-
-        // Setup filter clicks
+        setupDateRecycler(view)
+        setupTaskRecycler(view)
         setupFilters(view)
     }
 
@@ -66,131 +64,122 @@ class CalendarFragment : Fragment() {
         super.onResume()
         refreshDates()
         loadTasksForDate()
+        updateTaskStatuses()
+        handler.postDelayed(updateRunnable, updateInterval)
+        isFirstLoad = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(updateRunnable)
+    }
+
+    // ================= DATE LIST =================
+
+    private fun setupDateRecycler(view: View) {
+        rvDates = view.findViewById(R.id.rv_dates)
+
+        dateAdapter = DateAdapter(generateDates()) { item, position ->
+            selectedDate = item.date
+            dateAdapter.selectDate(position)
+            loadTasksForDate()
+        }
+
+        rvDates.apply {
+            layoutManager =
+                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = dateAdapter
+        }
+
+        // Snap center like Google Calendar
+        LinearSnapHelper().attachToRecyclerView(rvDates)
     }
 
     private fun generateDates(): List<DateItem> {
-        val dates = mutableListOf<DateItem>()
-        val calendar = Calendar.getInstance()
-        
-        // Start from 5 days ago so today is positioned nicely
-        calendar.add(Calendar.DAY_OF_YEAR, -5)
-        
-        // Generate 16 days (5 before + today + 10 after)
-        for (i in 0 until 16) {
-            val isToday = isSameDay(calendar.time, Date())
-            dates.add(DateItem(calendar.time, isToday))
-            if (isToday) {
-                selectedDate = calendar.time
+        val list = mutableListOf<DateItem>()
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, -5)
+
+        repeat(16) {
+            val date = cal.time
+            val isToday = isSameDay(date, Date())
+
+            if (isToday && isFirstLoad) {
+                selectedDate = date
             }
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
+
+            list.add(DateItem(date, isSameDay(date, selectedDate)))
+            cal.add(Calendar.DAY_OF_YEAR, 1)
         }
-        
-        return dates
+        return list
     }
 
     private fun refreshDates() {
-        // Regenerate dates to ensure calendar is always up-to-date
-        val newDates = generateDates()
-        val todayIndex = newDates.indexOfFirst { it.isSelected }
-        
-        dateAdapter.updateDates(newDates)
-        
-        // Scroll to center on today
-        if (todayIndex >= 0) {
+        val dates = generateDates()
+        val selectedIndex = dates.indexOfFirst { it.isSelected }
+
+        dateAdapter.updateDates(dates)
+
+        if (selectedIndex >= 0) {
+            // Wait for layout then center the item
             rvDates.post {
                 val layoutManager = rvDates.layoutManager as LinearLayoutManager
-                // Calculate item width: 48dp (circle) + 16dp (padding) + 8dp (margin) = 72dp
-                val density = resources.displayMetrics.density
-                val itemWidth = (72 * density).toInt()
-                val offset = (rvDates.width / 2) - (itemWidth / 2)
-                layoutManager.scrollToPositionWithOffset(todayIndex, offset)
+                // First scroll to make it visible
+                layoutManager.scrollToPosition(selectedIndex)
+                
+                // Then center with offset
+                rvDates.post {
+                    val viewHolder = rvDates.findViewHolderForAdapterPosition(selectedIndex)
+                    val itemWidth = viewHolder?.itemView?.width ?: return@post
+                    val offset = (rvDates.width - itemWidth) / 2
+                    layoutManager.scrollToPositionWithOffset(selectedIndex, offset)
+                }
             }
         }
     }
 
-    private fun isSameDay(date1: Date, date2: Date): Boolean {
-        val cal1 = Calendar.getInstance().apply { time = date1 }
-        val cal2 = Calendar.getInstance().apply { time = date2 }
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    private fun isSameDay(d1: Date, d2: Date): Boolean {
+        val c1 = Calendar.getInstance().apply { time = d1 }
+        val c2 = Calendar.getInstance().apply { time = d2 }
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
+                c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR)
     }
 
-    private fun setupFilters(view: View) {
-        val filterAll = view.findViewById<TextView>(R.id.filter_all)
-        val filterTodo = view.findViewById<TextView>(R.id.filter_todo)
-        val filterInProgress = view.findViewById<TextView>(R.id.filter_in_progress)
-        val filterCompleted = view.findViewById<TextView>(R.id.filter_completed)
-        val filterOverdue = view.findViewById<TextView>(R.id.filter_overdue)
+    // ================= TASK LIST =================
 
-        filterAll.setOnClickListener {
-            currentFilter = null
-            updateFilterUI(view, filterAll)
-            applyFilter()
-        }
+    private fun setupTaskRecycler(view: View) {
+        rvTasks = view.findViewById(R.id.rv_tasks)
 
-        filterTodo.setOnClickListener {
-            currentFilter = TaskStatus.TODO
-            updateFilterUI(view, filterTodo)
-            applyFilter()
-        }
-
-        filterInProgress.setOnClickListener {
-            currentFilter = TaskStatus.IN_PROGRESS
-            updateFilterUI(view, filterInProgress)
-            applyFilter()
-        }
-
-        filterCompleted.setOnClickListener {
-            currentFilter = TaskStatus.COMPLETED
-            updateFilterUI(view, filterCompleted)
-            applyFilter()
-        }
-
-        filterOverdue.setOnClickListener {
-            currentFilter = TaskStatus.OVERDUE
-            updateFilterUI(view, filterOverdue)
-            applyFilter()
-        }
-    }
-
-    private fun updateFilterUI(rootView: View, selectedFilter: TextView) {
-        val filters = listOf(
-            rootView.findViewById<TextView>(R.id.filter_all),
-            rootView.findViewById<TextView>(R.id.filter_todo),
-            rootView.findViewById<TextView>(R.id.filter_in_progress),
-            rootView.findViewById<TextView>(R.id.filter_completed),
-            rootView.findViewById<TextView>(R.id.filter_overdue)
+        taskAdapter = TaskAdapter(
+            onCompleteClick = { markTaskCompleted(it) },
+            onItemClick = {
+                (activity as? MainActivity)?.navigateToTaskDetail(it.id)
+            }
         )
 
-        filters.forEach { filter ->
-            if (filter == selectedFilter) {
-                filter.setBackgroundResource(R.drawable.chip_selected)
-                filter.setTextColor(resources.getColor(R.color.white, null))
-            } else {
-                filter.setBackgroundResource(R.drawable.chip_unselected)
-                filter.setTextColor(resources.getColor(R.color.primary_purple, null))
-            }
+        rvTasks.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = taskAdapter
         }
     }
 
     private fun loadTasksForDate() {
         thread {
             val db = TaskDatabase.getDatabase(requireContext())
-            
-            // Get start and end of selected day
-            val calendar = Calendar.getInstance()
-            calendar.time = selectedDate
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
-            val startOfDay = calendar.timeInMillis
-            
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
-            val endOfDay = calendar.timeInMillis
-            
-            allTasks = db.taskDao().getTasksByDate(startOfDay, endOfDay)
-            
+            val cal = Calendar.getInstance().apply {
+                time = selectedDate
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            val start = cal.timeInMillis
+            cal.add(Calendar.DAY_OF_YEAR, 1)
+            val end = cal.timeInMillis
+
+            allTasks = db.taskDao().getTasksByDate(start, end)
+
             activity?.runOnUiThread {
                 applyFilter()
             }
@@ -198,11 +187,78 @@ class CalendarFragment : Fragment() {
     }
 
     private fun applyFilter() {
-        val filteredTasks = if (currentFilter == null) {
-            allTasks
-        } else {
-            allTasks.filter { it.status == currentFilter }
+        val result = currentFilter?.let {
+            allTasks.filter { t -> t.status == it }
+        } ?: allTasks
+
+        taskAdapter.updateTasks(result)
+    }
+
+    private fun markTaskCompleted(task: Task) {
+        thread {
+            val db = TaskDatabase.getDatabase(requireContext())
+            db.taskDao().updateStatus(task.id, TaskStatus.COMPLETED)
+
+            activity?.runOnUiThread {
+                Toast.makeText(context, "Task completed!", Toast.LENGTH_SHORT).show()
+                loadTasksForDate()
+            }
         }
-        taskAdapter.updateTasks(filteredTasks)
+    }
+
+    // ================= FILTER =================
+
+    private fun setupFilters(view: View) {
+        val map = mapOf(
+            R.id.filter_all to null,
+            R.id.filter_todo to TaskStatus.TODO,
+            R.id.filter_in_progress to TaskStatus.IN_PROGRESS,
+            R.id.filter_completed to TaskStatus.COMPLETED,
+            R.id.filter_overdue to TaskStatus.OVERDUE
+        )
+
+        map.forEach { (id, status) ->
+            view.findViewById<TextView>(id).setOnClickListener {
+                currentFilter = status
+                updateFilterUI(view, it as TextView)
+                applyFilter()
+            }
+        }
+    }
+
+    private fun updateFilterUI(root: View, selected: TextView) {
+        val ids = listOf(
+            R.id.filter_all,
+            R.id.filter_todo,
+            R.id.filter_in_progress,
+            R.id.filter_completed,
+            R.id.filter_overdue
+        )
+
+        ids.forEach {
+            val tv = root.findViewById<TextView>(it)
+            if (tv == selected) {
+                tv.setBackgroundResource(R.drawable.chip_selected)
+                tv.setTextColor(resources.getColor(R.color.white, null))
+            } else {
+                tv.setBackgroundResource(R.drawable.chip_unselected)
+                tv.setTextColor(resources.getColor(R.color.primary_purple, null))
+            }
+        }
+    }
+
+    // ================= AUTO STATUS =================
+
+    private fun updateTaskStatuses() {
+        thread {
+            val db = TaskDatabase.getDatabase(requireContext())
+            val now = System.currentTimeMillis()
+
+            db.taskDao().getTasksToStartProgress(now)
+                .forEach { db.taskDao().updateStatus(it.id, TaskStatus.IN_PROGRESS) }
+
+            db.taskDao().getTasksToMarkOverdue(now)
+                .forEach { db.taskDao().updateStatus(it.id, TaskStatus.OVERDUE) }
+        }
     }
 }

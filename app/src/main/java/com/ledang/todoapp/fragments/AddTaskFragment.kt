@@ -2,13 +2,16 @@ package com.ledang.todoapp.fragments
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ledang.todoapp.R
 import com.ledang.todoapp.data.entity.Task
@@ -26,6 +29,7 @@ class AddTaskFragment : Fragment() {
     private lateinit var etTaskName: EditText
     private lateinit var etDescription: EditText
     private lateinit var tvCategoryName: TextView
+    private lateinit var imgCategoryIcon: ImageView
     
     private var startTimeMillis: Long = 0
     private var endTimeMillis: Long = 0
@@ -49,6 +53,10 @@ class AddTaskFragment : Fragment() {
         etTaskName = view.findViewById(R.id.et_project_name)
         etDescription = view.findViewById(R.id.et_description)
         tvCategoryName = view.findViewById(R.id.tv_category_name)
+        imgCategoryIcon = view.findViewById(R.id.img_category_icon)
+
+        // Set initial category display
+        updateCategoryUI()
 
         // Category selector
         view.findViewById<View>(R.id.layout_category).setOnClickListener {
@@ -78,16 +86,39 @@ class AddTaskFragment : Fragment() {
     }
 
     private fun showCategoryDialog() {
-        val categories = arrayOf("Work", "Personal", "Study", "Sports")
-        val categoryEnums = arrayOf(TaskCategory.WORK, TaskCategory.PERSONAL, TaskCategory.STUDY, TaskCategory.SPORTS)
+        val categories = TaskCategory.values()
+        val categoryNames = categories.map { it.displayName }.toTypedArray()
         
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Select Category")
-            .setItems(categories) { _, which ->
-                selectedCategory = categoryEnums[which]
-                tvCategoryName.text = categories[which]
+            .setItems(categoryNames) { _, which ->
+                selectedCategory = categories[which]
+                updateCategoryUI()
             }
             .show()
+    }
+
+    private fun updateCategoryUI() {
+        val context = requireContext()
+        
+        // Update category name
+        tvCategoryName.text = selectedCategory.displayName
+        
+        // Update icon
+        imgCategoryIcon.setImageResource(selectedCategory.iconRes)
+        imgCategoryIcon.imageTintList = ContextCompat.getColorStateList(context, selectedCategory.colorRes)
+        
+        // Update background color (light version)
+        val backgroundDrawable = imgCategoryIcon.background
+        if (backgroundDrawable is GradientDrawable) {
+            backgroundDrawable.setColor(ContextCompat.getColor(context, selectedCategory.lightColorRes))
+        } else {
+            val newBackground = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(ContextCompat.getColor(context, selectedCategory.lightColorRes))
+            }
+            imgCategoryIcon.background = newBackground
+        }
     }
 
     private fun showDateTimePicker(onDateTimeSelected: (Date) -> Unit) {
@@ -135,6 +166,10 @@ class AddTaskFragment : Fragment() {
             Toast.makeText(context, "Please select end date", Toast.LENGTH_SHORT).show()
             return
         }
+        if (startTimeMillis > endTimeMillis) {
+            Toast.makeText(context, "Start time cannot be after end time", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val task = Task(
             name = taskName,
@@ -159,6 +194,9 @@ class AddTaskFragment : Fragment() {
                 tvEndDate.text = "Select date"
                 startTimeMillis = 0
                 endTimeMillis = 0
+                // Reset to default category
+                selectedCategory = TaskCategory.WORK
+                updateCategoryUI()
             }
         }
     }

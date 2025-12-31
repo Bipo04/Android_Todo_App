@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@color/background_light"
     android:fillViewport="true"
-    tools:context=".fragments.AddTaskFragment">
+    tools:context=".fragments.TaskDetailFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="24dp">
+        android:paddingBottom="100dp">
 
         <!-- Header -->
         <RelativeLayout
@@ -21,17 +21,28 @@
             android:paddingHorizontal="20dp"
             android:paddingVertical="16dp">
 
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_back_arrow"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Add task"
+                android:text="Task Detail"
                 android:textColor="@color/text_title"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </RelativeLayout>
 
-        <!-- Task Group / Category Selector -->
+        <!-- Task Group / Category -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,7 +53,6 @@
             app:cardElevation="5dp">
 
             <RelativeLayout
-                android:id="@+id/layout_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -82,18 +92,45 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_dropdown"
-                    app:tint="@color/primary_purple" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Project Name Input -->
+        <!-- Status -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="5dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status"
+                    android:textColor="@color/text_description"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="To-do"
+                    android:textColor="@color/primary_purple"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Task Name -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,20 +153,17 @@
                     android:textColor="@color/text_description"
                     android:textSize="12sp" />
 
-                <EditText
-                    android:id="@+id/et_project_name"
+                <TextView
+                    android:id="@+id/tv_task_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:background="@android:color/transparent"
-                    android:hint="Enter task name"
-                    android:inputType="text"
                     android:textColor="@color/text_title"
                     android:textSize="16sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Description Input -->
+        <!-- Description -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -152,22 +186,18 @@
                     android:textColor="@color/text_description"
                     android:textSize="12sp" />
 
-                <EditText
-                    android:id="@+id/et_description"
+                <TextView
+                    android:id="@+id/tv_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="top"
-                    android:hint="Enter description"
-                    android:inputType="textMultiLine"
-                    android:minLines="4"
                     android:textColor="@color/text_title"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:minLines="2" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Start Date Picker -->
+        <!-- Start Date -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -178,7 +208,6 @@
             app:cardElevation="5dp">
 
             <RelativeLayout
-                android:id="@+id/layout_start_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -210,21 +239,13 @@
                         android:id="@+id/tv_start_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Select date"
                         android:textColor="@color/text_title"
                         android:textSize="16sp" />
                 </LinearLayout>
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_dropdown"
-                    app:tint="@color/primary_purple" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- End Date Picker -->
+        <!-- End Date -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -235,7 +256,6 @@
             app:cardElevation="5dp">
 
             <RelativeLayout
-                android:id="@+id/layout_end_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
@@ -246,7 +266,7 @@
                     android:layout_height="32dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/ic_calendar"  />
+                    android:src="@drawable/ic_calendar" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -267,35 +287,11 @@
                         android:id="@+id/tv_end_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Select date"
                         android:textColor="@color/text_title"
                         android:textSize="16sp" />
                 </LinearLayout>
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_dropdown"
-                    app:tint="@color/primary_purple" />
             </RelativeLayout>
-
         </androidx.cardview.widget.CardView>
-
-
-        <!-- Add Project Button -->
-        <TextView
-            android:id="@+id/btn_add_project"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/button_purple_rounded"
-            android:gravity="center"
-            android:text="Add Task"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

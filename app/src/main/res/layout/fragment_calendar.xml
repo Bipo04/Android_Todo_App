@@ -41,7 +41,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
         android:orientation="horizontal" />
 
     <!-- Status Filter - Horizontal Scroll -->
@@ -134,7 +133,10 @@
         android:layout_weight="1"
         android:layout_marginTop="20dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="20dp"
+        android:clipChildren="false"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="6dp"
         android:paddingBottom="100dp"
         tools:listitem="@layout/item_task_list" />
 
