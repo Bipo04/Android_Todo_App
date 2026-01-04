@@ -23,7 +23,7 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE status = :status ORDER BY startTime DESC")
     fun getTasksByStatus(status: TaskStatus): List<Task>
     
-    @Query("SELECT * FROM tasks WHERE category = :category ORDER BY startTime DESC")
+    @Query("SELECT * FROM tasks WHERE category = :category ORDER BY startTime ASC")
     fun getTasksByCategory(category: TaskCategory): List<Task>
     
     @Query("SELECT * FROM tasks WHERE id = :id")
@@ -62,4 +62,8 @@ interface TaskDao {
     // Count in progress tasks
     @Query("SELECT COUNT(*) FROM tasks WHERE status = 'IN_PROGRESS'")
     fun countInProgressTasks(): Int
+    
+    // Delete task by ID
+    @Query("DELETE FROM tasks WHERE id = :taskId")
+    fun deleteById(taskId: Long)
 }

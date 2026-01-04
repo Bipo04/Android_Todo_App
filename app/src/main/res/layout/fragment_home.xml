@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="@drawable/gradient_background"
     android:fillViewport="true"
     tools:context=".fragments.HomeFragment">
 
@@ -38,8 +38,8 @@
                     android:id="@+id/img_avatar"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="@drawable/progress_bar_blue"
-                    android:scaleType="centerCrop"
+                    android:background="@drawable/back_user"
+                    android:padding="8dp"
                     android:src="@drawable/ic_users" />
 
                 <LinearLayout
@@ -99,6 +99,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tv_today_message"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Your today's task\nalmost done!"

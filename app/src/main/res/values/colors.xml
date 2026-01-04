@@ -34,4 +34,5 @@
     <color name="category_study_light">#E3F2FD</color>
     <color name="category_sports">#4CAF50</color>
     <color name="category_sports_light">#E8F5E9</color>
+    <color name="bottom_bar">#EEE9FF</color>
 </resources>

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ledang.todoapp.MainActivity
 import com.ledang.todoapp.R
+import com.ledang.todoapp.data.UserPreferences
 import com.ledang.todoapp.data.database.TaskDatabase
 import com.ledang.todoapp.data.entity.Task
 import com.ledang.todoapp.data.enums.TaskCategory
@@ -33,6 +34,8 @@ class HomeFragment : Fragment() {
     private lateinit var tvInProgressCount: TextView
     private lateinit var progressToday: ProgressBar
     private lateinit var tvTodayProgressPercent: TextView
+    private lateinit var tvTodayMessage: TextView
+    private lateinit var tvUserName: TextView
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +56,11 @@ class HomeFragment : Fragment() {
         tvInProgressCount = view.findViewById(R.id.tv_in_progress_count)
         progressToday = view.findViewById(R.id.progress_today)
         tvTodayProgressPercent = view.findViewById(R.id.tv_today_progress_percent)
+        tvTodayMessage = view.findViewById(R.id.tv_today_message)
+        tvUserName = view.findViewById(R.id.tv_user_name)
+
+        // Load user name from SharedPreferences
+        tvUserName.text = UserPreferences.getUserName(requireContext())
 
         // Button "View Task" -> open CalendarFragment
         view.findViewById<TextView>(R.id.btn_view_task).setOnClickListener {
@@ -106,6 +114,16 @@ class HomeFragment : Fragment() {
                 // Update today's progress
                 progressToday.progress = todayProgress
                 tvTodayProgressPercent.text = "$todayProgress%"
+                
+                // Update dynamic message based on progress
+                val message = when {
+                    todayTotal == 0 -> "No tasks\nenjoy your day!"
+                    todayProgress < 30 -> "Your today's task\njust getting started"
+                    todayProgress < 60 -> "Your today's task\nmaking progress"
+                    todayProgress < 100 -> "Your today's task\nalmost done!"
+                    else -> "Your today's task\nall done!"
+                }
+                tvTodayMessage.text = message
                 
                 // Update in progress count
                 tvInProgressCount.text = inProgressTasks.size.toString()
@@ -201,18 +219,18 @@ class HomeFragment : Fragment() {
             val progressBar = itemView.findViewById<ProgressBar>(R.id.progress_group)
             val tvPercent = itemView.findViewById<TextView>(R.id.tv_progress_percent)
             
-            // Set icon
+            // Set icon with colored tint
             imgIcon.setImageResource(category.iconRes)
-            imgIcon.imageTintList = ContextCompat.getColorStateList(context, R.color.white)
+            imgIcon.imageTintList = ContextCompat.getColorStateList(context, category.colorRes)
             
-            // Set frame background color
+            // Set frame background to light color
             val backgroundDrawable = frameIcon.background
             if (backgroundDrawable is GradientDrawable) {
-                backgroundDrawable.setColor(ContextCompat.getColor(context, category.colorRes))
+                backgroundDrawable.setColor(ContextCompat.getColor(context, category.lightColorRes))
             } else {
                 val newBackground = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
-                    setColor(ContextCompat.getColor(context, category.colorRes))
+                    setColor(ContextCompat.getColor(context, category.lightColorRes))
                 }
                 frameIcon.background = newBackground
             }
