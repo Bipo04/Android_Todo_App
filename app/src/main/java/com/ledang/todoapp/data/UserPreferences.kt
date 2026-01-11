@@ -38,4 +38,16 @@ object UserPreferences {
     fun setNotificationsEnabled(context: Context, enabled: Boolean) {
         getPrefs(context).edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
     }
+
+    // Profile image path
+    private const val KEY_PROFILE_IMAGE_PATH = "profile_image_path"
+
+    fun saveProfileImagePath(context: Context, path: String?) {
+        getPrefs(context).edit().putString(KEY_PROFILE_IMAGE_PATH, path).apply()
+    }
+
+    fun getProfileImagePath(context: Context): String? {
+        return getPrefs(context).getString(KEY_PROFILE_IMAGE_PATH, null)
+    }
 }
+

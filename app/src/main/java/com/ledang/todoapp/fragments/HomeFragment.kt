@@ -1,5 +1,6 @@
 package com.ledang.todoapp.fragments
 
+import android.graphics.BitmapFactory
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.imageview.ShapeableImageView
 import com.ledang.todoapp.MainActivity
 import com.ledang.todoapp.R
 import com.ledang.todoapp.data.UserPreferences
@@ -21,6 +23,7 @@ import com.ledang.todoapp.data.database.TaskDatabase
 import com.ledang.todoapp.data.entity.Task
 import com.ledang.todoapp.data.enums.TaskCategory
 import com.ledang.todoapp.data.enums.TaskStatus
+import java.io.File
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -36,6 +39,7 @@ class HomeFragment : Fragment() {
     private lateinit var tvTodayProgressPercent: TextView
     private lateinit var tvTodayMessage: TextView
     private lateinit var tvUserName: TextView
+    private lateinit var imgAvatar: ShapeableImageView
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,6 +62,7 @@ class HomeFragment : Fragment() {
         tvTodayProgressPercent = view.findViewById(R.id.tv_today_progress_percent)
         tvTodayMessage = view.findViewById(R.id.tv_today_message)
         tvUserName = view.findViewById(R.id.tv_user_name)
+        imgAvatar = view.findViewById(R.id.img_avatar)
 
         // Load user name from SharedPreferences
         tvUserName.text = UserPreferences.getUserName(requireContext())
@@ -76,6 +81,20 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadData()
+        loadProfileImage()
+        tvUserName.text = UserPreferences.getUserName(requireContext())
+    }
+
+    private fun loadProfileImage() {
+        val imagePath = UserPreferences.getProfileImagePath(requireContext())
+        if (imagePath != null) {
+            val file = File(imagePath)
+            if (file.exists()) {
+                val bitmap = BitmapFactory.decodeFile(imagePath)
+                imgAvatar.setImageBitmap(bitmap)
+                imgAvatar.setPadding(0, 0, 0, 0)
+            }
+        }
     }
 
     private fun loadData() {
