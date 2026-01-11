@@ -125,7 +125,7 @@ class AddTaskFragment : Fragment() {
     private fun showDateTimePicker(onDateTimeSelected: (Date) -> Unit) {
         val currentCalendar = Calendar.getInstance()
 
-        DatePickerDialog(
+        val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
                 currentCalendar.set(Calendar.YEAR, year)
@@ -137,6 +137,13 @@ class AddTaskFragment : Fragment() {
                     { _, hourOfDay, minute ->
                         currentCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
                         currentCalendar.set(Calendar.MINUTE, minute)
+                        
+                        // Validate that selected time is not in the past
+                        if (currentCalendar.timeInMillis < System.currentTimeMillis()) {
+                            Toast.makeText(context, "Cannot select a time in the past", Toast.LENGTH_SHORT).show()
+                            return@TimePickerDialog
+                        }
+                        
                         onDateTimeSelected(currentCalendar.time)
                     },
                     currentCalendar.get(Calendar.HOUR_OF_DAY),
@@ -147,7 +154,11 @@ class AddTaskFragment : Fragment() {
             currentCalendar.get(Calendar.YEAR),
             currentCalendar.get(Calendar.MONTH),
             currentCalendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        
+        // Set minimum date to today - prevent selecting past dates
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
+        datePickerDialog.show()
     }
 
     private fun saveTask() {
@@ -165,6 +176,14 @@ class AddTaskFragment : Fragment() {
         }
         if (endTimeMillis == 0L) {
             Toast.makeText(context, "Please select end date", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (startTimeMillis < System.currentTimeMillis()) {
+            Toast.makeText(context, "Start time cannot be in the past", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (endTimeMillis < System.currentTimeMillis()) {
+            Toast.makeText(context, "End time cannot be in the past", Toast.LENGTH_SHORT).show()
             return
         }
         if (startTimeMillis > endTimeMillis) {
