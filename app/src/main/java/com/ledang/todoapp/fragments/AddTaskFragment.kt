@@ -18,7 +18,7 @@ import com.ledang.todoapp.data.entity.Task
 import com.ledang.todoapp.data.enums.TaskCategory
 import com.ledang.todoapp.data.enums.TaskStatus
 import com.ledang.todoapp.data.database.TaskDatabase
-import com.ledang.todoapp.notification.TaskAlarmScheduler
+
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
@@ -203,11 +203,7 @@ class AddTaskFragment : Fragment() {
         // Save to database in background thread
         thread {
             val db = TaskDatabase.getDatabase(requireContext())
-            val taskId = db.taskDao().insert(task)
-            
-            // Schedule task reminders
-            val savedTask = task.copy(id = taskId)
-            TaskAlarmScheduler.scheduleTaskReminders(requireContext(), savedTask)
+            db.taskDao().insert(task)
             
             activity?.runOnUiThread {
                 Toast.makeText(context, "Task added successfully!", Toast.LENGTH_SHORT).show()

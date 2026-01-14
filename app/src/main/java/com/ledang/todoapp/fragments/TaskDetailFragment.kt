@@ -17,7 +17,7 @@ import com.ledang.todoapp.R
 import com.ledang.todoapp.data.database.TaskDatabase
 import com.ledang.todoapp.data.entity.Task
 import com.ledang.todoapp.data.enums.TaskStatus
-import com.ledang.todoapp.notification.TaskAlarmScheduler
+
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
@@ -283,10 +283,6 @@ class TaskDetailFragment : Fragment() {
         thread {
             val db = TaskDatabase.getDatabase(requireContext())
             db.taskDao().update(updatedTask)
-            
-            // Reschedule task reminders with updated times
-            TaskAlarmScheduler.cancelTaskReminders(requireContext(), updatedTask.id)
-            TaskAlarmScheduler.scheduleTaskReminders(requireContext(), updatedTask)
             
             activity?.runOnUiThread {
                 Toast.makeText(context, "Task updated successfully!", Toast.LENGTH_SHORT).show()

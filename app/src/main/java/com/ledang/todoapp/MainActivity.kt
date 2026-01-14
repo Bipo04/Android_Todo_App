@@ -1,13 +1,8 @@
 package com.ledang.todoapp
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,18 +13,10 @@ import com.ledang.todoapp.fragments.DocumentFragment
 import com.ledang.todoapp.fragments.HomeFragment
 import com.ledang.todoapp.fragments.TaskDetailFragment
 import com.ledang.todoapp.fragments.UsersFragment
-import com.ledang.todoapp.notification.NotificationHelper
-import com.ledang.todoapp.notification.TaskAlarmScheduler
-import com.ledang.todoapp.data.database.TaskDatabase
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView
-    
-    companion object {
-        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,15 +29,6 @@ class MainActivity : AppCompatActivity() {
         }
         
         setContentView(R.layout.activity_main)
-        
-        // Create notification channel
-        NotificationHelper.createNotificationChannel(this)
-        
-        // Request notification permission for Android 13+
-        requestNotificationPermission()
-        
-        // Schedule alarms for all pending tasks (ensures existing tasks get notifications)
-        scheduleAllPendingTasks()
 
         bottomNav = findViewById(R.id.bottomNavigationView)
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add)
@@ -136,36 +114,6 @@ class MainActivity : AppCompatActivity() {
     // Hàm để chuyển sang TaskDetailFragment (giữ nav selection, có back stack)
     fun navigateToTaskDetail(taskId: Long) {
         replaceFragmentWithBackStack(TaskDetailFragment.newInstance(taskId))
-    }
-    
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    NOTIFICATION_PERMISSION_REQUEST_CODE
-                )
-            }
-        }
-    }
-    
-    private fun scheduleAllPendingTasks() {
-        thread {
-            val db = TaskDatabase.getDatabase(this)
-            val allTasks = db.taskDao().getAllTasks()
-            
-            // Schedule alarms for all non-completed tasks
-            allTasks.forEach { task ->
-                if (task.status != com.ledang.todoapp.data.enums.TaskStatus.COMPLETED) {
-                    TaskAlarmScheduler.scheduleTaskReminders(this, task)
-                }
-            }
-        }
     }
     
     // Hàm để chuyển sang CategoryTasksFragment

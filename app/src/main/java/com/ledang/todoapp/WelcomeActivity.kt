@@ -28,11 +28,9 @@ class WelcomeActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Save user name and mark first launch complete
             UserPreferences.saveUserName(this, name)
             UserPreferences.setFirstLaunchComplete(this)
 
-            // Navigate to MainActivity
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

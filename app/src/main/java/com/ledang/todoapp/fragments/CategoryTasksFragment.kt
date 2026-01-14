@@ -20,7 +20,7 @@ import com.ledang.todoapp.data.database.TaskDatabase
 import com.ledang.todoapp.data.entity.Task
 import com.ledang.todoapp.data.enums.TaskCategory
 import com.ledang.todoapp.data.enums.TaskStatus
-import com.ledang.todoapp.notification.TaskAlarmScheduler
+
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
@@ -137,7 +137,6 @@ class CategoryTasksFragment : Fragment() {
             
             selectedTaskIds.forEach { taskId ->
                 dao.deleteById(taskId)
-                TaskAlarmScheduler.cancelTaskReminders(requireContext(), taskId)
             }
 
             activity?.runOnUiThread {
